@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>Hash DB</title>
+<script type="text/javascript" src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css"/>
+<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="./cvi_busy_lib.js"></script>
+<script type="text/javascript">
+$(function(){
+  window.addEventListener( 'dragover', function( event ){
+    event.preventDefault(); // ブラウザのデフォルトの画像表示処理をOFF
+  }, false );
+  window.addEventListener( 'drop', function( event ){
+    event.preventDefault(); // ブラウザのデフォルトの画像表示処理をOFF
+    var file = event.dataTransfer.files[0];
+    var reader = new FileReader(); 
+    reader.onload = function(){
+      fileUpload( file );
+    };
+    reader.onerror = function( e ){
+      console.log( 'error: ' + e );
+    };
+    reader.readAsDataURL( file );
+  }, false );
+
+  // ファイルを選択した場合にもプレビュー表示させる
+  var selfInput = $(this).find( 'input[type=file]' );
+  selfInput.change( function(){
+    var file = $(this).prop('files')[0];
+    var reader = new FileReader();
+    if( this.files.length ){
+      reader.onload = function(){
+        fileUpload( file );
+      };
+      reader.onerror = function( e ){
+        console.log( 'error: ' + e );
+      };
+      reader.readAsDataURL( file );
+    }else{
+      if( 0 < selfImg.size() ){
+        return;
+      }
+    }
+  });
+
+  listFiles();
+});
+
+// ファイルアップロード
+function fileUpload( f ){
+  var obj = getBusyOverlay( 'viewport', { color:'black', opacity:0.5, text:'loading', style:'text-decoration:blink;font-weight:bold;font-size:12px;color:white' } );
+  var formData = new FormData();
+  formData.append( 'file', f );
+  $.ajax({
+    type: 'POST',
+    contentType: false,
+    processData: false,
+    url: './file',
+    data: formData,
+    success: function( data ){
+      obj.remove();
+      json = JSON.parse( data );
+      console.log( json );
+
+      listFiles();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      obj.remove();
+      // メッセージ出したり、DOM構築したり。
+      console.log( "XMLHttpRequest: " + XMLHttpRequest.status );
+      console.log( "textStatus: " + textStatus );
+      console.log( "errorThrown: " + errorThrown.message );
+    }
+  });
+}
+
+function listFiles(){
+  $('#tbody').html( "" );
+  var obj = getBusyOverlay( 'viewport', { color:'black', opacity:0.5, text:'loading', style:'text-decoration:blink;font-weight:bold;font-size:12px;color:white' } );
+  $.ajax({
+    type: 'GET',
+    url: './files',
+    success: function( data ){
+      obj.remove();
+      var json = JSON.parse( data );
+      console.log( json );
+      if( json.rows ){
+        for( var i = 0; i < json.rows.length; i ++ ){
+          var id = json.rows[i].id;
+          var filename = json.rows[i].doc.filename;
+          var filetype = json.rows[i].doc.filetype;
+
+          var tr = '<tr class="info" id="' + id + '">';
+          tr += '<td><a target="_blank" href="./file?id=' + id + '">' + filename + '</a></td>';
+          tr += '<td>' + filetype + '</td>';
+          tr += '<td><button type="button" id="delfilebutton_' + id + '" class="btn btn-danger" onClick="delFile( ';
+          tr += "'" + id + "'";
+          tr += ' );"><i class="glyphicon glyphicon-trash"></i></button></td>';
+          tr += '</tr>';
+          $('#tbody').append( tr );
+        }
+      }
+    },
+    error: function( jqXHR, textStatus, errorThrown ){
+      obj.remove();
+      console.log( textStatus + " : " + errorThrown );
+    }
+  });
+}
+
+function delFile( id ){
+  if( window.confirm( 'ID: ' + id + ' のファイルを削除します' ) ){
+    var obj = getBusyOverlay( 'viewport', { color:'black', opacity:0.5, text:'loading', style:'text-decoration:blink;font-weight:bold;font-size:12px;color:white' } );
+    $.ajax({
+      type: 'DELETE',
+      url: './del_file',
+      data: 'id=' + id,
+      success: function( data ){
+        obj.remove();
+/*
+        var json = JSON.parse( data );
+        var file_id = json.file_id;
+        if( file_id.indexOf( "error-" ) != 0 ){
+          $('#' + file_id).remove();
+        }
+*/
+        listFiles();
+      },
+      error: function( jqXHR, textStatus, errorThrown ){
+        obj.remove();
+        console.log( textStatus + " : " + errorThrown );
+      }
+    });
+  }
+}
+</script>
+<style>
+</style>
+</head>
+<body>
+<!-- //new -->
+<div class="container" style="padding:60px 15px;">
+<form method="POST" action="./file" enctype="multipart/form-data">
+<input type="file" name="file"/>
+</form>
+</div>
+<!-- new// -->
+
+<!-- //list -->
+<div class="container" style="padding:60px 15px;">
+<table class="table table-bordered">
+<thead>
+<tr style="background-color: #ffffcc;"><th>Filename</th><th>Filetype</th><th>Action</th></tr>
+</thead>
+<tbody id="tbody">
+</tbody>
+</table>
+</div>
+<!-- list// -->
+</body>
+</html>
+
