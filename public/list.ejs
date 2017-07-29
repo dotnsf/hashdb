@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>Hash DB</title>
+<meta charset="utf-8"/>
 <script type="text/javascript" src="//code.jquery.com/jquery-2.2.4.min.js"></script>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"/>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css"/>
@@ -95,7 +96,8 @@ function listFiles(){
           tr += '<td><a target="_blank" href="./file?id=' + id + '">' + filename + '</a></td>';
           tr += '<td>' + filetype + '</td>';
           tr += '<td><button type="button" id="delfilebutton_' + id + '" class="btn btn-danger" onClick="delFile( ';
-          tr += "'" + id + "'";
+          tr += "'" + id + "', ";
+          tr += "'" + filename.split( "'" ).join( "&#39;" ) + "'";
           tr += ' );"><i class="glyphicon glyphicon-trash"></i></button></td>';
           tr += '</tr>';
           $('#tbody').append( tr );
@@ -109,8 +111,8 @@ function listFiles(){
   });
 }
 
-function delFile( id ){
-  if( window.confirm( 'ID: ' + id + ' のファイルを削除します' ) ){
+function delFile( id, filename ){
+  if( window.confirm( 'ファイル : ' + filename + ' を削除します' ) ){
     var obj = getBusyOverlay( 'viewport', { color:'black', opacity:0.5, text:'loading', style:'text-decoration:blink;font-weight:bold;font-size:12px;color:white' } );
     $.ajax({
       type: 'DELETE',
