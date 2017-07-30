@@ -30,11 +30,14 @@ app.all( '/*', basicAuth( function( user, pass ){
 }));
 
 app.get( '/', function( req, res ){
-  var db = cloudant.db.use( settings.cloudant_db );
-
-  var images = [];
   var template = fs.readFileSync( __dirname + '/public/list.ejs', 'utf-8' );
-  res.write( ejs.render( template, { images: images } ) );
+  res.write( ejs.render( template, {} ) );
+  res.end();
+});
+
+app.get( '/check', function( req, res ){
+  var template = fs.readFileSync( __dirname + '/public/check.ejs', 'utf-8' );
+  res.write( ejs.render( template, {} ) );
   res.end();
 });
 
