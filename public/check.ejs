@@ -44,8 +44,6 @@ $(function(){
       }
     }
   });
-
-  listFiles();
 });
 
 // ファイルアップロード
@@ -62,8 +60,14 @@ function fileUpload( f ){
     success: function( data ){
       obj.remove();
       json = JSON.parse( data );
-      console.log( json );
-
+      //console.log( json );
+      if( json.status == "yes" ){
+        //. 登録済み
+        alert( "このファイルはシステム内に登録済みです。" );
+      }else{
+        //. 未登録
+        alert( "このファイルのシステムへの登録は確認できませんでした。" );
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       obj.remove();

@@ -91,9 +91,11 @@ function listFiles(){
           var id = json.rows[i].id;
           var filename = json.rows[i].doc.filename;
           var filetype = json.rows[i].doc.filetype;
+          var datetime = json.rows[i].doc.datetime;
 
           var tr = '<tr class="info" id="' + id + '">';
           tr += '<td><a target="_blank" href="./file?id=' + id + '">' + filename + '</a></td>';
+          tr += '<td>' + datetime + '</td>';
           tr += '<td>' + filetype + '</td>';
           tr += '<td><button type="button" id="delfilebutton_' + id + '" class="btn btn-danger" onClick="delFile( ';
           tr += "'" + id + "', ";
@@ -146,7 +148,7 @@ function delFile( id, filename ){
 <div class="container" style="padding:60px 15px;">
 <table class="table table-bordered">
 <thead>
-<tr style="background-color: #ffffcc;"><th>Filename</th><th>Filetype</th><th>Action</th></tr>
+<tr style="background-color: #ffffcc;"><th>Filename</th><th>Uploaded</th><th>Filetype</th><th>Action</th></tr>
 </thead>
 <tbody id="tbody">
 </tbody>
