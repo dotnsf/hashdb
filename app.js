@@ -143,6 +143,10 @@ app.post( '/file', function( req, res ){
           res.write( JSON.stringify( { error: 'Existed data.' }, 2, null ) );
           res.end();
         }
+      }else{
+        //. 既存データ
+        res.write( JSON.stringify( { error: 'Existed data.' }, 2, null ) );
+        res.end();
       }
     });
 
